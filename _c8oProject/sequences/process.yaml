@@ -1,4 +1,5 @@
 accessibility: Private
+comment: the only sequence to run to view statistics or do compact
 responseTimeout: 600
 ↓process [steps.SimpleStep-1644571806966]: 
   expression: |
@@ -18,6 +19,8 @@ responseTimeout: 600
     doCompactDB = doCompactDB == "true";
     doCompactViews = doCompactViews == "true";
     doViewCleanup = doViewCleanup == "true";
+    minSizeFile = minSizeFile * 1;
+    minFragmentation = minFragmentation * 1;
     
     var dbs, query;
     if (databases.length > 0) {
@@ -202,20 +205,36 @@ responseTimeout: 600
             nodeName: type
             nodeText: integer
 ↓databases [variables.RequestableMultiValuedVariable-1644592413471]: 
+  comment: databases names to handle or empty for all databases
   value: 
     - xmlizable: 
       - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
       - com.twinsoft.convertigo.beans.common.XMLVector: 
 ↓doCompactDB [variables.RequestableVariable-1644571615278]: 
+  comment: true to perform a _compact
   value: false
 ↓doCompactViews [variables.RequestableVariable-1644571637814]: 
+  comment: true to perform _compact/{design}
   value: false
 ↓doViewCleanup [variables.RequestableVariable-1644571680611]: 
+  comment: true to perform _view_cleanup
   value: false
 ↓minSizeFile [variables.RequestableVariable-1644576431969]: 
-  value: 100000
+  comment: database using less than this size is skipped
+  value: 500000
 ↓minFragmentation [variables.RequestableVariable-1644576469245]: 
+  comment: database fragmented less than this is skipped
   value: 25
 ↓otherCouchDBurl [variables.RequestableVariable-1644571552110]: 
+  comment: empty for current fullsync server or the a CouchDB url to use it
 ↓otherCouchDBusername [variables.RequestableVariable-1644592336405]: 
+  comment: specify CouchDB username in case of an url is set
 ↓otherCouchDBpassword [variables.RequestableVariable-1644592352869]: 
+  comment: specify CouchDB password in case of an url is et
+↓CompactAll [core.TestCase]: 
+  ↓doCompactDB [variables.TestCaseVariable-1644596086284]: 
+    value: true
+  ↓doCompactViews [variables.TestCaseVariable-1644596086286]: 
+    value: true
+  ↓doViewCleanup [variables.TestCaseVariable-1644596086288]: 
+    value: true
