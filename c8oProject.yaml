@@ -1,0 +1,5 @@
+↑convertigo: 7.9.0.m006
+↓lib_CompactCouchDB [core.Project]: 
+  comment: Mashup Sequencer project
+  ↓void [connectors.SqlConnector]: 🗏 connectors/void.yaml
+  ↓process [sequences.GenericSequence]: 🗏 sequences/process.yaml

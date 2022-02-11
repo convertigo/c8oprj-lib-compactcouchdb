@@ -1,0 +1,192 @@
+accessibility: Private
+responseTimeout: 600
+↓process [steps.SimpleStep-1644571806966]: 
+  expression: |
+    'var CouchKey = use("com.twinsoft.convertigo.engine.enums.CouchKey");
+    var CouchPostDocumentPolicy = use("com.twinsoft.convertigo.engine.enums.CouchPostDocumentPolicy");
+    var fsclient = com.twinsoft.convertigo.engine.Engine.theApp.couchDbManager.getFullSyncClient();
+    
+    
+    var toJSON = function(json) {
+    	return JSON.parse(json.toString());
+    }
+    
+    doCompactDB = true;
+    doCompactViews = true;
+    doViewCleanup = true;
+    
+    var databases, query;
+    if (typeof database == "string" && database != "") {
+    	databases = {items:[database]};
+    } else {
+    	if (com.twinsoft.convertigo.engine.util.VersionUtils.compare(com.twinsoft.convertigo.engine.ProductVersion.productVersion, "7.9.6") < 0) {
+    		prefix = com.twinsoft.convertigo.engine.EnginePropertiesManager.getProperty(
+    			com.twinsoft.convertigo.engine.EnginePropertiesManager.PropertyName.FULLSYNC_COUCH_PREFIX
+    		);
+    		
+    		query = new java.util.HashMap();
+    		query.put(''startkey'', ''"'' + prefix + ''"'');
+    		query.put(''endkey'', ''"'' + prefix + ''\uffff"'');
+    		databases = toJSON(fsclient.getAllDbs(query));
+    		
+    		
+    		if ((prefix + '''').length > 0 ) {
+    			databases.items = databases.items.map(function (item) {
+    				return item.substring((prefix + '''').length +1);
+    			})
+    		}
+    	} else {
+    		databases = toJSON(fsclient.getAllDbs(null));
+    	}
+    }
+    
+    var i, http, response;
+    for (i = 0; i < databases.items.length; i++) {
+    	database = databases.items[i];
+    	if (database.startsWith("_")) {
+    		databases.items.splice(i, 1);
+    		i--;
+    		continue;
+    	}
+    	response = toJSON(fsclient.getDatabase(database));
+    	databases.items[i] = {
+    		name: database,
+    		doc_count: response.doc_count,
+    		before_size_active: response.sizes.active,
+    		before_size_file: response.sizes.file,
+    		before_fragmentation: "" + Math.floor(((response.sizes.file - response.sizes.active) / response.sizes.file) * 100)
+    	}
+    	databases.items[i].skip = (databases.items[i].before_size_file < minSizeFile || databases.items[i].before_fragmentation < minFragmentation);
+    }
+    
+    if (doCompactDB || doCompactViews || doViewCleanup) {
+    	for (i = 0; i < databases.items.length; i++) {
+    		if (databases.items[i].skip) {
+    			continue;
+    		}
+    		database = databases.items[i].name;
+    		log.warn("" + database);
+    		
+    		if (doCompactDB) {
+    			response = toJSON(fsclient.postCompact(database));
+    			log.warn("doCompactDB " + JSON.stringify(response));
+    			if (!response.ok == "true") {
+    				log.error("doCompactDB not ok for " + database + ": " + JSON.stringify(response));
+    			}
+    		}
+    		
+    		if (doViewCleanup) {
+    			http = new org.apache.http.client.methods.HttpPost(fsclient.getDatabaseUrl(database) + "/_view_cleanup");
+    			response = toJSON(fsclient.execute(http));
+    			log.warn("doViewCleanup " + JSON.stringify(response));
+    			if (!response.ok == "true") {
+    				log.error("doViewCleanup not ok for " + database + ": " + JSON.stringify(response));
+    			}
+    			
+    		}
+    		
+    		if (doCompactViews) {
+    			query = new java.util.HashMap();
+    			query.put(''startkey'', ''"_design"'');
+    			query.put(''endkey'', ''"_design\uffff"'');
+    			response = toJSON(fsclient.getAllDocs(database, query));
+    			log.warn("doCompactViews " + JSON.stringify(response));
+    			if (!response.ok == "true") {
+    				log.error("doCompactViews not ok for " + database + ": " + JSON.stringify(response));
+    			}
+    		}
+    	}
+    	
+    	for (i = 0; i < databases.items.length; i++) {
+    		if (databases.items[i].skip) {
+    			continue;
+    		}
+    		
+    		database = databases.items[i].name;
+    		
+    		log.warn("" + database);
+    		response = toJSON(fsclient.getDatabase(database));
+    		while (response.compact_running) {
+    			java.lang.Thread.sleep(2500);
+    			response = toJSON(fsclient.getDatabase(database));
+    		}
+    		log.warn("" + JSON.stringify(response));
+    		databases.items[i].after_size_active = response.sizes.active,
+    		databases.items[i].after_size_file = response.sizes.file,
+    		databases.items[i].after_fragmentation = "" + Math.floor(((response.sizes.file - response.sizes.active) / response.sizes.file) * 100)
+    	}
+    }'
+↓Complex [steps.XMLComplexStep-1644571899738]: 
+  nodeName: databases
+  ↓Attribute [steps.XMLAttributeStep-1644571899741]: 
+    nodeName: type
+    nodeText: array
+  ↓jIterator [steps.SimpleIteratorStep-1644571899744]: 
+    expression: databases.items
+    ↓item [steps.XMLComplexStep-1644573556509]: 
+      nodeName: item
+      ↓name [steps.ElementStep-1644573572923]: 
+        expression: item.name
+        nodeName: name
+      ↓doc_count [steps.ElementStep-1644573589069]: 
+        expression: item.doc_count
+        nodeName: doc_count
+        ↓Attribute [steps.XMLAttributeStep-1644576878672]: 
+          nodeName: type
+          nodeText: integer
+      ↓before_size_active [steps.ElementStep-1644573651590]: 
+        expression: item.before_size_active
+        nodeName: before_size_active
+        ↓Attribute [steps.XMLAttributeStep-1644576895351]: 
+          nodeName: type
+          nodeText: integer
+      ↓before_size_file [steps.ElementStep-1644573668516]: 
+        expression: item.before_size_file
+        nodeName: before_size_file
+        ↓Attribute [steps.XMLAttributeStep-1644576896158]: 
+          nodeName: type
+          nodeText: integer
+      ↓before_fragmentation [steps.ElementStep-1644573680902]: 
+        expression: item.before_fragmentation
+        nodeName: before_fragmentation
+        ↓Attribute [steps.XMLAttributeStep-1644576897661]: 
+          nodeName: type
+          nodeText: integer
+      ↓skip [steps.ElementStep-1644576741406]: 
+        expression: item.skip
+        nodeName: skip
+        ↓Attribute [steps.XMLAttributeStep-1644576898983]: 
+          nodeName: type
+          nodeText: boolean
+      ↓jIf [steps.IfStep-1644576727777]: 
+        condition: '!item.skip'
+        ↓after_fragmentation [steps.ElementStep-1644575272677]: 
+          expression: item.after_fragmentation
+          nodeName: after_fragmentation
+          ↓Attribute [steps.XMLAttributeStep-1644576907086]: 
+            nodeName: type
+            nodeText: integer
+        ↓after_size_active [steps.ElementStep-1644575229485]: 
+          expression: item.after_size_active
+          nodeName: after_size_active
+          ↓Attribute [steps.XMLAttributeStep-1644576907638]: 
+            nodeName: type
+            nodeText: integer
+        ↓after_size_file [steps.ElementStep-1644575255373]: 
+          expression: item.after_size_file
+          nodeName: after_size_file
+          ↓Attribute [steps.XMLAttributeStep-1644576908189]: 
+            nodeName: type
+            nodeText: integer
+↓server [variables.RequestableVariable-1644571552110]: 
+↓database [variables.RequestableVariable-1644571598630]: 
+↓doCompactDB [variables.RequestableVariable-1644571615278]: 
+  value: false
+↓doCompactViews [variables.RequestableVariable-1644571637814]: 
+  value: false
+↓doViewCleanup [variables.RequestableVariable-1644571680611]: 
+  value: false
+↓minSizeFile [variables.RequestableVariable-1644576431969]: 
+  value: 100000
+↓minFragmentation [variables.RequestableVariable-1644576469245]: 
+  value: 25
