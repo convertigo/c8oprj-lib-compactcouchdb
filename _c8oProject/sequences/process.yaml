@@ -5,7 +5,7 @@ responseTimeout: 600
   expression: |
     'var fsclient;
     
-    if (otherCouchDBurl && otherCouchDBurl != null) {
+    if (typeof otherCouchDBurl == "object" && otherCouchDBurl != "") {
     	fsclient = com.twinsoft.convertigo.engine.providers.couchdb.CouchClient(otherCouchDBurl, otherCouchDBusername, otherCouchDBpassword);
     } else {
     	fsclient = com.twinsoft.convertigo.engine.Engine.theApp.couchDbManager.getFullSyncClient();
