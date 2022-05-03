@@ -11,4 +11,4 @@ Sequence **process**
 - minFragmentation: database fragmented less than this is skipped
 - otherCouchDBurl: empty for current fullsync server or the a CouchDB url to use it
 - otherCouchDBusername: specify CouchDB username in case of an url is set
-- otherCouchDBpassword: specify CouchDB password in case of an url is et
+- otherCouchDBpassword: specify CouchDB password in case of an url is set

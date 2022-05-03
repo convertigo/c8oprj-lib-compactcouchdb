@@ -5,7 +5,7 @@ responseTimeout: 600
   expression: |
     'var fsclient;
     
-    if (typeof otherCouchDBurl == "object" && otherCouchDBurl != "") {
+    if (otherCouchDBurl != "") {
     	fsclient = com.twinsoft.convertigo.engine.providers.couchdb.CouchClient(otherCouchDBurl, otherCouchDBusername, otherCouchDBpassword);
     } else {
     	fsclient = com.twinsoft.convertigo.engine.Engine.theApp.couchDbManager.getFullSyncClient();
@@ -227,10 +227,13 @@ responseTimeout: 600
   value: 25
 ↓otherCouchDBurl [variables.RequestableVariable-1644571552110]: 
   comment: empty for current fullsync server or the a CouchDB url to use it
+  value: 
 ↓otherCouchDBusername [variables.RequestableVariable-1644592336405]: 
   comment: specify CouchDB username in case of an url is set
+  value: 
 ↓otherCouchDBpassword [variables.RequestableVariable-1644592352869]: 
   comment: specify CouchDB password in case of an url is et
+  value: 
 ↓CompactAll [core.TestCase]: 
   ↓doCompactDB [variables.TestCaseVariable-1644596086284]: 
     value: true
