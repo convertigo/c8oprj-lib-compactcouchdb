@@ -1,6 +1,6 @@
 ↑convertigo: 7.9.0.m006
 ↓lib_CompactCouchDB [core.Project]: 
   comment: Compact and cleanup a CouchDB server
-  version: 7.9.0.2
+  version: 1.0
   ↓void [connectors.SqlConnector]: 🗏 connectors/void.yaml
   ↓process [sequences.GenericSequence]: 🗏 sequences/process.yaml
