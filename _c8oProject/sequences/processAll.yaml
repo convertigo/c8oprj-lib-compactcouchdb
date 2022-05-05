@@ -1,0 +1,153 @@
+accessibility: Private
+comment: special sequence that try to compact on dbs of your couchdb server
+responseTimeout: 15000
+↓Init [steps.SimpleStep-1651674131230]: 
+  expression: |
+    bContinue = 1;
+    skip = "0";
+    limit = "20";
+    skipped = skipFirst * 1;
+    done = 0;
+    total_before_frag = 0;
+    total_after_frag = 0;
+↓jDoWhile [steps.DoWhileStep-1651674161453]: 
+  condition: bContinue * 1 > 0
+  ↓Call_Sequence [steps.SequenceStep-1651674175606]: 
+    sourceSequence: lib_CompactCouchDB.process
+    ↓doCompactDB [variables.StepVariable-1651674175610]: 
+      comment: true to perform a _compact
+    ↓doCompactViews [variables.StepVariable-1651674175612]: 
+      comment: true to perform _compact/{design}
+    ↓doViewCleanup [variables.StepVariable-1651674175614]: 
+      comment: true to perform _view_cleanup
+    ↓minSizeFile [variables.StepVariable-1651674175616]: 
+      comment: database using less than this size is skipped
+    ↓minFragmentation [variables.StepVariable-1651674175618]: 
+      comment: database fragmented less than this is skipped
+    ↓otherCouchDBurl [variables.StepVariable-1651674175620]: 
+      comment: empty for current fullsync server or the a CouchDB url to use it
+    ↓otherCouchDBusername [variables.StepVariable-1651674175622]: 
+      comment: specify CouchDB username in case of an url is set
+    ↓otherCouchDBpassword [variables.StepVariable-1651674175624]: 
+      comment: specify CouchDB password in case of an url is et
+    ↓limit [variables.StepVariable-1651674175626]: 
+    ↓skip [variables.StepVariable-1651674175628]: 
+  ↓bContinue [steps.SimpleSourceStep-1651674413796]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1651674175606
+          - java.lang.String: 
+            - ↑value: ./document/databases/@length
+    variableName: bContinue
+  ↓skipped [steps.SimpleSourceStep-1651675810815]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1651674175606
+          - java.lang.String: 
+            - ↑value: count(./document/databases/item/skip[.="true"])
+    variableName: _skipped
+  ↓done [steps.SimpleSourceStep-1651675918039]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1651674175606
+          - java.lang.String: 
+            - ↑value: count(./document/databases/item/skip[.="false"])
+    variableName: _done
+  ↓before_frag [steps.SimpleSourceStep-1651676203363]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1651674175606
+          - java.lang.String: 
+            - ↑value: sum(./document/databases/item[skip="false"]/before_fragmentation)
+    variableName: _before_frag
+  ↓after_frag [steps.SimpleSourceStep-1651676266143]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1651674175606
+          - java.lang.String: 
+            - ↑value: sum(./document/databases/item[skip="false"]/after_fragmentation)
+    variableName: _after_frag
+  ↓inc [steps.SimpleStep-1651675394150]: 
+    expression: |
+      'skip = "" + (skip * 1 + (limit * 1));
+      skipped += _skipped * 1;
+      done += _done * 1;
+      total_before_frag += _before_frag * 1;
+      total_after_frag += _after_frag * 1;
+      
+      log.info("[compact] {" +
+      "total: " + (done + skipped) + ", " +
+      "done: " + done + ", " +
+      "skipped: " + skipped + "}");
+      
+      // allow context to continue
+      context.lastAccessTime = java.lang.System.currentTimeMillis();'
+↓total [steps.ElementStep-1651678661357]: 
+  expression: '"" + (done + skipped)'
+  nodeName: total
+↓skipped [steps.ElementStep-1651676350030]: 
+  expression: '"" + skipped'
+  nodeName: skipped
+↓done [steps.ElementStep-1651676378375]: 
+  expression: '"" + done'
+  nodeName: done
+↓total_before_frag [steps.ElementStep-1651676413102]: 
+  expression: '"" + total_before_frag'
+  nodeName: total_before_fragmentation
+↓jIf_1 [steps.IfStep-1651678838532]: 
+  condition: doCompactDB == "true"
+  ↓total_after_frag [steps.ElementStep-1651676483409]: 
+    expression: '"" + total_after_frag'
+    nodeName: total_after_fragmentation
+↓jIf [steps.IfStep-1651678242799]: 
+  condition: done > 0
+  ↓average_before_frag [steps.ElementStep-1651676734907]: 
+    expression: '"" + (total_before_frag / (done * 1.0))'
+    nodeName: average_before_fragmentation
+  ↓jIf [steps.IfStep-1651678871562]: 
+    condition: doCompactDB == "true"
+    ↓average_after_frag [steps.ElementStep-1651676866405]: 
+      expression: '"" + (total_after_frag / (done * 1.0))'
+      nodeName: average_after_fragmentation
+↓doCompactDB [variables.RequestableVariable-1651674517977]: 
+  comment: true to perform a _compact
+  value: false
+↓doCompactViews [variables.RequestableVariable-1651674517979]: 
+  comment: true to perform _compact/{design}
+  value: false
+↓doViewCleanup [variables.RequestableVariable-1651674517981]: 
+  comment: true to perform _view_cleanup
+  value: false
+↓minSizeFile [variables.RequestableVariable-1651674517983]: 
+  comment: database using less than this size is skipped
+  value: 500000
+↓minFragmentation [variables.RequestableVariable-1651674517985]: 
+  comment: database fragmented less than this is skipped
+  value: 25
+↓otherCouchDBurl [variables.RequestableVariable-1651674517987]: 
+  comment: empty for current fullsync server or the a CouchDB url to use it
+  value: 
+↓otherCouchDBusername [variables.RequestableVariable-1651674517989]: 
+  comment: specify CouchDB username in case of an url is set
+  value: 
+↓otherCouchDBpassword [variables.RequestableVariable-1651674517991]: 
+  comment: specify CouchDB password in case of an url is et
+  value: 
+↓skipFirst [variables.RequestableVariable-1651678591426]: 
+  comment: skip first x dbs to
+  value: 0

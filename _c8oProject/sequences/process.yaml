@@ -7,9 +7,11 @@ responseTimeout: 600
     
     if (otherCouchDBurl != "") {
     	fsclient = com.twinsoft.convertigo.engine.providers.couchdb.CouchClient(otherCouchDBurl, otherCouchDBusername, otherCouchDBpassword);
+    	log.info("process use " + otherCouchDBurl);
     } else {
     	fsclient = com.twinsoft.convertigo.engine.Engine.theApp.couchDbManager.getFullSyncClient();
     	otherCouchDBurl = null;
+    	log.info("process use fsclient");
     }
     
     var toJSON = function(json) {
@@ -25,25 +27,34 @@ responseTimeout: 600
     var dbs, query;
     if (databases.length > 0) {
     	dbs = {items: databases};
+    	log.info("process use specified databases")
     } else {
     	if (otherCouchDBurl == null && com.twinsoft.convertigo.engine.util.VersionUtils.compare(com.twinsoft.convertigo.engine.ProductVersion.productVersion, "7.9.6") < 0) {
-    		prefix = com.twinsoft.convertigo.engine.EnginePropertiesManager.getProperty(
+    		prefix = "" + com.twinsoft.convertigo.engine.EnginePropertiesManager.getProperty(
     			com.twinsoft.convertigo.engine.EnginePropertiesManager.PropertyName.FULLSYNC_COUCH_PREFIX
     		);
-    		
+    		log.info("process use legacy prefix for dbs: " + prefix);
     		query = new java.util.HashMap();
-    		query.put(''startkey'', ''"'' + prefix + ''"'');
-    		query.put(''endkey'', ''"'' + prefix + ''\uffff"'');
-    		dbs = toJSON(fsclient.getAllDbs(query));
+    		if (prefix.length) {
+    			query.put(''startkey'', ''"'' + prefix + ''"'');
+    			query.put(''endkey'', ''"'' + prefix + ''\uffff"'');
+    		}
+    		query.put(''limit'', "" + limit);
+    		query.put(''skip'', "" + skip);
+    		dbs = toJSON(fsclient.getAllDbs(query));		
     		
-    		
-    		if ((prefix + '''').length > 0 ) {
+    		if (prefix.length) {
     			dbs.items = dbs.items.map(function (item) {
-    				return item.substring((prefix + '''').length +1);
+    				return item.substring(prefix.length + 1);
     			})
     		}
     	} else {
-    		dbs = toJSON(fsclient.getAllDbs(null));
+    		query = new java.util.HashMap();
+    		query.put(''limit'', "" + limit);
+    		query.put(''skip'', "" + skip);
+    		log.info("process retrieve dbs");
+    		dbs = toJSON(fsclient.getAllDbs(query));
+    		log.info("dbs:" + JSON.stringify(dbs));
     	}
     }
     
@@ -120,12 +131,11 @@ responseTimeout: 600
     		database = dbs.items[i].name;
     		
     		log.warn("" + database);
-    		response = toJSON(fsclient.getDatabase(database));
+    		response = {compact_running: true};
     		while (response.compact_running) {
-    			java.lang.Thread.sleep(2500);
+    			java.lang.Thread.sleep(500);
     			response = toJSON(fsclient.getDatabase(database));
     		}
-    		log.warn("" + JSON.stringify(response));
     		dbs.items[i].after_size_active = response.sizes.active,
     		dbs.items[i].after_size_file = response.sizes.file,
     		dbs.items[i].after_fragmentation = "" + Math.floor(((response.sizes.file - response.sizes.active) / response.sizes.file) * 100)
@@ -234,6 +244,10 @@ responseTimeout: 600
 ↓otherCouchDBpassword [variables.RequestableVariable-1644592352869]: 
   comment: specify CouchDB password in case of an url is et
   value: 
+↓limit [variables.RequestableVariable-1651668087260]: 
+  value: 10
+↓skip [variables.RequestableVariable-1651668095022]: 
+  value: 0
 ↓CompactAll [core.TestCase]: 
   ↓doCompactDB [variables.TestCaseVariable-1644596086284]: 
     value: true
