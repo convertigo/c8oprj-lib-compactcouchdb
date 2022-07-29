@@ -1,5 +1,5 @@
 accessibility: Private
-comment: special sequence that try to compact on dbs of your couchdb server
+comment: Sequence that compacts all dbs of your couchdb server. Suitable for large amount of databases to proceed.
 responseTimeout: 15000
 ↓Init [steps.SimpleStep-1651674131230]: 
   expression: |
@@ -125,29 +125,29 @@ responseTimeout: 15000
       expression: '"" + (total_after_frag / (done * 1.0))'
       nodeName: average_after_fragmentation
 ↓doCompactDB [variables.RequestableVariable-1651674517977]: 
-  comment: true to perform a _compact
+  comment: '"true" to perform a _compact.'
   value: false
 ↓doCompactViews [variables.RequestableVariable-1651674517979]: 
-  comment: true to perform _compact/{design}
+  comment: '"true" to perform _compact/{design}.'
   value: false
 ↓doViewCleanup [variables.RequestableVariable-1651674517981]: 
-  comment: true to perform _view_cleanup
+  comment: '"true" to perform _view_cleanup.'
   value: false
 ↓minSizeFile [variables.RequestableVariable-1651674517983]: 
-  comment: database using less than this size is skipped
+  comment: Database using less than this size in bytes is skipped.
   value: 500000
 ↓minFragmentation [variables.RequestableVariable-1651674517985]: 
-  comment: database fragmented less than this is skipped
+  comment: Percentage of database fragmented less than this is skipped.
   value: 25
 ↓otherCouchDBurl [variables.RequestableVariable-1651674517987]: 
-  comment: empty for current fullsync server or the a CouchDB url to use it
+  comment: Empty for current fullsync server or the CouchDB url to use.
   value: 
 ↓otherCouchDBusername [variables.RequestableVariable-1651674517989]: 
-  comment: specify CouchDB username in case of an url is set
+  comment: Specifies the CouchDB username in case of an url is set.
   value: 
 ↓otherCouchDBpassword [variables.RequestableVariable-1651674517991]: 
-  comment: specify CouchDB password in case of an url is et
+  comment: Specifies the CouchDB password in case of an url is set.
   value: 
 ↓skipFirst [variables.RequestableVariable-1651678591426]: 
-  comment: skip first x dbs to
+  comment: skip first n databases.
   value: 0
